@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>2d graphics</title>
+    <script>
+       let g=null;
+       function start(){
+          g=document.getElementById("c1").getContext("2d");
+          draw(100, 100, 130, 120);
+       }
+       function draw(x1, y1, x2, y2){
+           g.beginPath();
+           g.moveTo(x1, y1);
+           g.lineTo(x2, y2);
+           g.stroke();
+           let vx=x2-x1;
+           let vy=y2-y1;
+           console.log(Math.sqrt(vx*vx+vy*vy));
+           if(Math.sqrt(vx*vx+vy*vy)>5){
+               let v2x=vy;
+               let v2y=-vx;
+               //let nx=x2+v2x;
+               //let ny=y2+v2y;
+               //console.log(nx, ny);
+               //g.fillRect(nx, ny, 2, 2);
+               let nx=x2+0.5*vx+0.25*v2x;
+               let ny=y2+0.5*vy+0.25*v2y;
+               draw(x2, y2, nx, ny);
+               let nx2=x2+0.5*vx-0.25*v2x;
+               let ny2=y2+0.5*vy-0.25*v2y;
+               draw(x2, y2, nx2, ny2);
+           }
+       }
+    </script>
+  </head>
+  <body onload="start()">
+     <canvas id="c1" width="400" height="300"></canvas>
+  </body>
+</html>

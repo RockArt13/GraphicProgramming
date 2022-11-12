@@ -1,0 +1,43 @@
+<!doctype html>
+
+<html>
+
+<head>
+<title>Sound</title>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js" integrity="sha512-w1Bktzax55ZbjW5Mqjz8+mKz4KqRjEUU35Dpq/ath29yskKqIGwNIHiFNp03m/OiJWDXvdQ1/g6aV+l4PeVO7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.js" integrity="sha512-U2sgwrFhl+Tgx9iGH9h5Ba2WyIjyCes+D0prtIFw3a0V+/fkaeL5Cd/VjyPHno9kUPE1rnNhBGTyvtZsfJp0xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<script>
+let osc, env;
+let noteNr = 62;
+
+function setup()
+{
+createCanvas(600,400);
+background(200);
+ osc = new p5.Oscillator("sine");
+ env = new p5.Envelope(0.3, 1, 0.7, 0.1);
+}
+
+function mousePressed()
+{
+osc.freq(midiToFreq(noteNr));
+osc.start();
+
+env.play(osc);
+
+
+noteNr++;
+
+
+
+}
+
+
+</script>
+</body>
+
+</html>

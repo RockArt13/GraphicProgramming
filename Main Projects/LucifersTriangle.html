@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Lucifer's Triangle</title>
+      
+      <script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vColor;
+varying vec4 fColor;
+void main() {
+	gl_PointSize = 1.0;
+  gl_Position = vPosition;
+  fColor = vColor;
+}
+</script>
+
+      <script id="fragment-shader" type="x-shader/x-fragment">
+  precision mediump float;
+  varying vec4 fColor;
+  void main() {
+    gl_FragColor = fColor;
+  }
+</script>
+      <canvas id='canvas'></canvas>
+      
+
+
+      <script>
+  
+        
+        // loading canvas element
+let canvas = document.getElementById('canvas')
+canvas.width = 600
+canvas.height = 600
+let gl = canvas.getContext('webgl')
+gl.enable(gl.DEPTH_TEST)
+
+let baseColors = [
+    [0, 0, 0],      // black
+    [1, 0, 1],      //greenablueish
+    [1, 1, 0],      
+    [0.6, 0.2, 0.9]
+]
+
+// creating a simple series of points
+let vertices = [
+ 
+        [0,  0.15, -9.0],               // A
+        [0,  0.9,  3.0],                // B
+        [-0.9, -0.6, 3.0],              // C
+        [0.9, -0.6,  3.0]               // D
+]
+let points = []
+let colors = []
+
+function flatten(array) {
+  let f = new Float32Array(array.length*3)
+  array.forEach(function (point, index) {
+    f[index*3] = point[0]
+    f[index*3+1] = point[1]
+    f[index*3+2] = point[2]
+  })
+  return f
+}
+
+
+// utility to scale a vector
+function scale(point, scale) {
+  return [point[0]*scale, point[1]*scale, point[2]*scale]
+}
+
+
+function triangle (a, b, c, color) {
+  colors.push(scale(baseColors[color], 0.2))
+  points.push(a)
+  colors.push(scale(baseColors[color], 0.2))
+  points.push(b)
+  colors.push(baseColors[color])
+  points.push(c)
+}
+
+function pyramid (a, b, c, d) {
+  triangle(a, c, b, 0)
+  triangle(a, c, d, 1)
+  triangle(a, b, d, 2)
+  triangle(b, c, d, 3)
+}
+
+function midianOfASide(u, v){
+   return [0.5*(u[0] + v[0]), 0.5* (u[1] + v[1]), 0.5* (u[2] + v[2])]
+}
+
+
+function luciferRecursion(a, b, c, d, count) {
+  if(count===0){
+    pyramid(a, b, c, d)
+    return
+  }
+  let ab = midianOfASide(a, b)
+  let ac = midianOfASide(a, c)
+  let ad = midianOfASide(a, d)
+  let bc = midianOfASide(b, c)
+  let bd = midianOfASide(b, d)
+  let cd = midianOfASide(c, d)
+  --count
+  luciferRecursion(a, ab, ac, ad, count)
+  luciferRecursion(ab, b, bc, bd, count)
+  luciferRecursion(ac, bc, c, cd, count)
+  luciferRecursion(ad, bd, cd, d, count)
+
+}
+
+
+// loading vertex and fragment shaders
+let vertex = document.getElementById('vertex-shader')
+let vertexShader = gl.createShader(gl.VERTEX_SHADER)
+gl.shaderSource(vertexShader, vertex.text)
+gl.compileShader(vertexShader)
+
+let fragment = document.getElementById('fragment-shader')
+let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
+gl.shaderSource(fragmentShader, fragment.text)
+gl.compileShader(fragmentShader)
+
+// initializing gl program
+let program = gl.createProgram()
+gl.attachShader(program, vertexShader)
+gl.attachShader(program, fragmentShader)
+gl.linkProgram(program)
+
+gl.clearColor(0, 0, 0.02, 1)
+
+gl.useProgram(program)
+
+
+luciferRecursion(vertices[0], vertices[1], vertices[2], vertices[3], 10)
+
+// webgl data
+let colorBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
+gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW)
+
+
+let vColor = gl.getAttribLocation(program, 'vColor')
+gl.vertexAttribPointer(vColor, 2, gl.FLOAT, false, 0, 0)
+gl.enableVertexAttribArray(vColor)
+
+let pointBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer)
+gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW)
+
+
+let vPosition = gl.getAttribLocation(program, 'vPosition')
+gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0)
+gl.enableVertexAttribArray(vPosition)
+
+
+// render
+
+function draw() {
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  gl.drawArrays(gl.TRIANGLES, 0, points.length)
+}
+
+draw()
+
+
+        
+    </script>
+  </head>
+  <body onload="start()">
+     <canvas id="c1" width="400" height="300"></canvas>
+  </body>
+    
+</html>

@@ -1,0 +1,54 @@
+<!doctype>
+<html>
+  <head>
+     <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+  import { get, set, push, ref, onValue, getDatabase } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDyunPQMi7AhasCQ4LEBvDkh_ihwuEQinc",
+    authDomain: "oksjon-e40e0.firebaseapp.com",
+    databaseURL: "https://oksjon-e40e0-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "oksjon-e40e0",
+    storageBucket: "oksjon-e40e0.appspot.com",
+    messagingSenderId: "164771438019",
+    appId: "1:164771438019:web:817bf0ecbaea86557e3176"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db=getDatabase();
+  const ref1=ref(db, 'dlg2021/coordinates');
+  
+  function draw(r){
+     let data=r.val();
+     let values=Object.values(data);
+     //console.log(data);
+     console.log(values);
+     g.clearRect(0, 0, 400, 300);
+     values.forEach(v =>{
+        console.log(v.x, v.y);
+        g.fillRect(v.x, v.y, 5, 5);
+     });
+  }
+  let g=null;
+  window.onload=function(){
+     console.log("started");
+     g=document.getElementById("canvas1").getContext("2d");
+     onValue(ref1, draw);
+  }
+  window.mouseC=function(e){
+     console.log(e);
+     let place=push(ref1);
+     set(place, {"x":e.clientX, "y":e.clientY});
+  }
+</script>
+  </head>
+  <body>
+    <canvas id="canvas1" width="400" height="300" onclick="mouseC(event)"></canvas>
+  </body>
+</html>

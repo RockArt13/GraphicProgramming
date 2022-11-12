@@ -1,0 +1,76 @@
+
+
+<!doctype html>
+<html>
+   <head>
+     <title>WebGL animate</title>
+     <script>
+        let gl=null;
+          var vertices = [0.8, 0.5, -0.5, 0.8, -0.4, -0.5,
+		 0.9, -0.5, 0.9, 0.4, 0, -0.5];
+        let dx=0.03;
+        let vertex_buffer=null;
+        let coord=null;
+        let canvas=null;
+
+        function start(){
+         canvas = document.getElementById('my_Canvas');
+         gl = canvas.getContext('webgl');
+         vertex_buffer = gl.createBuffer();
+         var vertCode =
+            `attribute vec2 coordinates;
+            void main(void) { 
+              gl_Position = vec4(coordinates,0.0, 1.0);
+              gl_PointSize= 5.0;
+            }`;
+         var vertShader = gl.createShader(gl.VERTEX_SHADER);
+         gl.shaderSource(vertShader, vertCode);
+         gl.compileShader(vertShader);
+
+         var fragCode = 'void main(void) {' + 
+         'gl_FragColor = vec4(0.5, 1.0, 0.5, 0.9);}';
+         var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+         gl.shaderSource(fragShader, fragCode);
+         gl.compileShader(fragShader);
+
+         var shaderProgram = gl.createProgram();
+         gl.attachShader(shaderProgram, vertShader); 
+         gl.attachShader(shaderProgram, fragShader);
+         gl.linkProgram(shaderProgram);
+         gl.useProgram(shaderProgram);
+         coord = gl.getAttribLocation(shaderProgram, "coordinates");
+         gl.viewport(0,0,canvas.width,canvas.height);
+
+         step();
+        }
+        
+        function step(){
+         vertices[0]+=dx;
+         if(vertices[0]>1){ dx=-Math.abs(dx);}
+         if(vertices[0]<-1){dx= Math.abs(dx);}
+		 
+		          vertices[4]+=dx;
+         if(vertices[5]>0.5){ dx=-Math.abs(dx);}
+         if(vertices[5]<-0.5){dx= Math.abs(dx);}
+		 
+		  vertices[8]+=dx;
+         if(vertices[8]>0.2){ dx=-Math.abs(dx);}
+         if(vertices[8]<-0.2){dx= Math.abs(dx);}
+		
+         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+         gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+         gl.enableVertexAttribArray(coord);
+         gl.clearColor(0.5, 0.7, 0.6, 0.9);;
+         gl.enable(gl.DEPTH_TEST); 
+         gl.clear(gl.COLOR_BUFFER_BIT);
+         gl.drawArrays(gl.TRIANGLES, 0, 6);
+         requestAnimationFrame(step);        
+        }        
+     </script>
+   </head>
+   <body onload="start()">
+      <canvas width = "300" height = "300" id = "my_Canvas"></canvas>
+
+   </body>
+</html>

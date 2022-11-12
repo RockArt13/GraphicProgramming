@@ -1,0 +1,90 @@
+
+
+
+<!doctype html>
+<html>
+   <head>
+     <title>WebGL animate</title>
+     <script>
+        let gl=null;
+        let vertices = [-0.5, 0.5, -0.5, -0.5, 0.3, -0.5, 0.3, 0.5];
+        let indices = [0, 1, 2, 3, 1, 2];
+        let dx=0.01;
+        let vertex_buffer=null;
+        let index_buffer=null;
+        let coord=null;
+        let canvas=null;
+        let rotatingPointer=null;
+        let sX=1, sY=2, sZ=1;
+        let angle=Math.PI/2;
+        let rotatingMatrix = new Float32Array([
+            Math.cos(angle),   Math.sin(angle),
+            -Math.sin(angle),  Math.cos(angle) 
+         ]);
+         //x'=x*cos(a)-y*sin(a), y'=x*sin(a)+y*cos(a)
+
+        function start(){
+         canvas = document.getElementById('my_Canvas');
+         gl = canvas.getContext('webgl');
+         vertex_buffer = gl.createBuffer();
+         var vertCode =
+            `attribute vec2 coordinates;
+             uniform mat2 rotating;
+            void main(void) { 
+              gl_Position = vec4(rotating*coordinates,0.0, 1.0);
+              gl_PointSize= 5.0;
+            }`;
+         var vertShader = gl.createShader(gl.VERTEX_SHADER);
+         gl.shaderSource(vertShader, vertCode);
+         gl.compileShader(vertShader);
+
+         var fragCode = 'void main(void) {' + 
+         'gl_FragColor = vec4(0.0, 1.0, 0.0, 0.9);}';
+         var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+         gl.shaderSource(fragShader, fragCode);
+         gl.compileShader(fragShader);
+
+         var shaderProgram = gl.createProgram();
+         gl.attachShader(shaderProgram, vertShader); 
+         gl.attachShader(shaderProgram, fragShader);
+         gl.linkProgram(shaderProgram);
+         gl.useProgram(shaderProgram);
+         rotatingPointer=gl.getUniformLocation(shaderProgram, "rotating");
+         coord = gl.getAttribLocation(shaderProgram, "coordinates");
+         gl.viewport(0,0,canvas.width,canvas.height);
+         index_buffer=gl.createBuffer();
+         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
+         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+         step();
+        }
+        
+        function step(){
+         vertices[1]+=dx;
+         if(vertices[0]>1){ dx=-Math.abs(dx);}
+         if(vertices[0]<-1){dx= Math.abs(dx);}
+         angle=2*vertices[1];
+         rotatingMatrix = new Float32Array([
+            Math.cos(angle),   Math.tan(angle),
+            Math.tan(angle),  Math.sin(angle) 
+         ]);
+         gl.uniformMatrix2fv(rotatingPointer, false, rotatingMatrix);
+         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+         gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+         gl.enableVertexAttribArray(coord);
+         gl.clearColor(0.9, 0.5, 0.5, 0.9);
+         gl.enable(gl.DEPTH_TEST); 
+         gl.clear(gl.COLOR_BUFFER_BIT);
+//         gl.drawArrays(gl.TRIANGLES, 0, 3);
+//         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0); 
+         //gl.drawElements(gl.LINE_LOOP, 3, gl.UNSIGNED_SHORT, 0);
+         gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
+        requestAnimationFrame(step);        
+        }        
+     </script>
+   </head>
+   <body onload="start()">
+      <canvas width = "800" height = "800" id = "my_Canvas"></canvas>
+
+   </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+</head>
+<body>
+  <canvas id="canvas" width="700" height="700"></canvas>
+         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.3.2/gl-matrix-min.js"></script>
+    
+
+<style>
+    .tomorrow
+    {
+        color:black;
+        font-size: 30px;
+    }
+    .friday
+    {
+        color:yellow;
+        font-weight:bold;
+        font-size: 60px;
+
+    }
+</style>
+
+<span class="tomorrow">Tomorrow is:</span>&nbsp;<span class="friday">BLACK FRIDAY!</span>
+  
+ 
+    <!––  A Vertex shader which provides the clipspace coordinates. -->
+    
+<script id="shader-vs" type="x-shader/x-vertex">
+  attribute vec4 coords;
+  attribute float pointSize;
+  uniform mat4 transformMatrix;
+  void main(void) {
+    gl_Position = transformMatrix * coords;
+    gl_PointSize = pointSize;
+    
+  }
+  </script>
+    
+    
+     <!–– A fragment shader that provides the color. -->
+  
+  <script id="shader-fs" type="x-shader/x-fragment">
+  precision mediump float;
+  uniform vec4 color;
+  void main(void) {
+    gl_FragColor = color;
+  }
+  </script>
+  <script>
+      var gl,
+    shaderProgram,
+    vertices,
+    matrix = mat4.create(),
+    vertexCount = 15; // = 3 * 5
+
+
+     
+      
+      
+initGL();
+createShaders();
+createVertices();
+draw();
+      
+      
+function initGL() {
+  var canvas = document.getElementById("canvas");
+  console.log(canvas);
+  gl = canvas.getContext("webgl");
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(1, 1, 0, 1);  // YELLOW
+    
+
+}
+
+function createShaders() {
+  var vertexShader = getShader(gl, "shader-vs");
+  var fragmentShader = getShader(gl, "shader-fs");
+  
+  shaderProgram = gl.createProgram(); // A WebGLProgram object that is a combination of two                                         // compiled WebGLShaders consisting of a vertex shader and                                     // a fragment shader 
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
+  gl.useProgram(shaderProgram);
+}
+
+function createVertices() {
+  vertices = [];
+  for(var i = 0; i < vertexCount; i++) {
+    vertices.push(Math.random() * 2 - 1); // expected output: a number from 0 to <1
+    vertices.push(Math.random() * 2 - 1); // max: 1 * 2 - 1 = 1
+    vertices.push(Math.random() * 2 - 1); // min: 0 * 2 - 1 = -1
+  }
+    
+  var buffer = gl.createBuffer(); // storing data such as vertices or colors.
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+  
+  var coords = gl.getAttribLocation(shaderProgram, "coords");
+//   gl.vertexAttrib3f(coords, 0.5, 0.5, 0);
+  gl.vertexAttribPointer(coords, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(coords);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  
+  var pointSize = gl.getAttribLocation(shaderProgram, "pointSize");
+  gl.vertexAttrib1f(pointSize, 20);
+  
+  var color = gl.getUniformLocation(shaderProgram, "color");
+  gl.uniform4f(color, 0, 0, 0, 1); // BLACK
+}
+
+function draw() {
+  mat4.rotateX(matrix, matrix, -0.007); // rotateX(receiving_matrix, matrix_to_rotate, angle)
+  mat4.rotateY(matrix, matrix, 0.013);
+  mat4.rotateZ(matrix, matrix, 0.01);
+
+    // returns the location of a specific uniform
+  var transformMatrix = gl.getUniformLocation(shaderProgram, "transformMatrix");
+  
+    //take as the input value 4-component square matrices)
+    // transpose = false
+    gl.uniformMatrix4fv(transformMatrix, false, matrix);
+  
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+  requestAnimationFrame(draw);
+    
+    
+    
+}
+
+
+  /*
+   * https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
+   */
+  function getShader(gl, id) {
+    var shaderScript, theSource, currentChild, shader;
+
+    shaderScript = document.getElementById(id);
+
+    if (!shaderScript) {
+      return null;
+    }
+
+    theSource = "";
+    currentChild = shaderScript.firstChild;
+
+    while (currentChild) {
+      if (currentChild.nodeType == currentChild.TEXT_NODE) {
+        theSource += currentChild.textContent;
+      }
+
+      currentChild = currentChild.nextSibling;
+    }
+    if (shaderScript.type == "x-shader/x-fragment") {
+      shader = gl.createShader(gl.FRAGMENT_SHADER);
+    } else if (shaderScript.type == "x-shader/x-vertex") {
+      shader = gl.createShader(gl.VERTEX_SHADER);
+    } else {
+      // Unknown shader type
+      return null;
+    }
+    gl.shaderSource(shader, theSource);
+
+// Compile the shader program
+    gl.compileShader(shader);
+
+// See if it compiled successfully
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+      return null;
+    }
+
+    return shader;
+  }
+
+
+
+</script>
+ 
+</body>
+</html>

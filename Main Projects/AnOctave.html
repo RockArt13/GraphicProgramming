@@ -1,0 +1,103 @@
+<!doctype html>
+
+<html>
+
+<head>
+<title>An Octave</title>
+
+<script src="path/to/p5.sound.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js" integrity="sha512-w1Bktzax55ZbjW5Mqjz8+mKz4KqRjEUU35Dpq/ath29yskKqIGwNIHiFNp03m/OiJWDXvdQ1/g6aV+l4PeVO7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.js" integrity="sha512-U2sgwrFhl+Tgx9iGH9h5Ba2WyIjyCes+D0prtIFw3a0V+/fkaeL5Cd/VjyPHno9kUPE1rnNhBGTyvtZsfJp0xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<script>
+// The midi notes of a scale
+let notes = [ 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79];
+// Names of the note
+let letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C1', 'D1', 'E1', 'F1', 'G1'];
+
+let osc, env;
+
+function setup() {
+  createCanvas(720, 400);
+  background(666);
+
+
+
+    osc = new p5.Oscillator("sine");
+    env = new p5.Envelope(0.3, 1, 0.7, 0.1);
+}
+
+    
+
+function playNote(note, duration) {
+  osc.freq(midiToFreq(note));
+  
+    
+  osc.fade(0.5,0.2);
+
+    if (duration) {
+    setTimeout(function() {
+      osc.fade(0,0.2);
+    }, duration-50);
+  }
+}
+
+function draw() {
+
+  // A piano view
+
+ 
+  var w = width / notes.length;
+  for (var i = 0; i < notes.length; i++) {
+    var x = i * w;
+    // If the mouse is over
+    if (mouseX > x && mouseX < x + w && mouseY < height) {
+      // If it is clicked
+      if (mouseIsPressed) {
+        fill(0,0,153);
+        
+      // If it is rolling over
+      } else {
+        fill(204,229,255);
+           
+            
+      }
+    } else {
+      fill(255);
+      
+    }
+
+
+        // Draw the key
+            rect(x, 0, w-1, height-1);
+      
+        // Draw a letter
+            textSize(32);
+            fill(153, 51, 255);
+            text(letters[i], x, 350);
+  }
+
+}
+
+// When we click
+function mousePressed() {
+  // Map mouse to the key index
+  var key = floor(map(mouseX, 0, width, 0, notes.length));
+  playNote(notes[key]);
+    
+    
+//osc.freq(midiToFreq(64));
+    osc.start();
+    env.play(osc);
+}
+
+// Fade it out when we release
+function mouseReleased() {
+  osc.fade(0,0.5);
+}
+
+</script>
+</body>
+
+</html>

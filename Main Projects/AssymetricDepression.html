@@ -1,0 +1,60 @@
+<!doctype html>
+
+<html>
+
+<head>
+<title>Asymmetric Depression</title>
+<script 
+	src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js" integrity="sha512-N4kV7GkNv7QR7RX9YF/olywyIgIwNvfEe2nZtfyj73HdjCUkAfOBDbcuJ/cTaN04JKRnw1YG1wnUyNKMsNgg3g==" crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+    
+ <!--   <script src="path/to/p5.sound.js"></script> -->
+</head>
+<body>
+<script>
+let angle = 0;
+
+function setup() {
+  createCanvas(1200, 600);
+  background(102);
+  noStroke();
+  fill(0, 102);
+    x = width / 2;
+    y = height;
+}
+
+function draw() {
+
+  if (mouseIsPressed === true) {
+    angle += 3;
+    let val = cos(radians(angle)) * 8.0;
+    for (let a = 0; a < 360; a += 50) {
+      let xoff = cos(radians(a)) * val;
+      let yoff = sin(radians(a)) * val;
+      fill(0);
+      ellipse(mouseX + xoff, mouseY + yoff, val, val);
+    }
+    fill(255);
+    ellipse(mouseX, mouseY, 2, 2);
+  }
+    
+
+    stroke(50);
+    fill(100);
+    ellipse(x-200, y+100, 25, 25);
+    ellipse(x, y, 125, 125);
+    ellipse(x+200, y+200, 25, 25);
+  
+  
+  x = x + random(-1, 1);
+  y = y - 1;
+  
+  if (y < 0) {
+    y = height;
+  }
+}
+    
+    </script>
+</body>
+
+</html>

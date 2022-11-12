@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>2d graphics</title>
+    <script>
+       let g=null;
+      
+       function start(){
+          g=document.getElementById("c1").getContext("2d");
+          draw(10, 20, 200);
+       }
+        function draw(x, y, len)
+        {
+            g.beginPath();
+            g.moveTo(x,y);
+            g.lineTo(x, y+len);
+            g.stroke();
+            if(len>5){
+            draw(x+10, y+len/8, len/4);
+            draw(x+10, y+5*len/8, len/4);
+             
+            }
+        }
+    </script>
+  </head>
+  <body onload="start()">
+     <canvas id="c1" width="400" height="300"></canvas>
+  </body>
+</html>

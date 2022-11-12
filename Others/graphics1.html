@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>2d graphics</title>
+    <script>
+       let g=null;
+       function start(){
+          g=document.getElementById("c1").getContext("2d");
+          g.fillRect(100, 50, 25, 35);
+           g.fillText("Hello!", 250, 150);
+          g.fillStyle="green";
+          g.fillRect(200, 50, 25, 35);
+          g.lineWidth=2;
+          g.beginPath();
+          g.moveTo(150, 50);
+          g.lineTo(150, 100);
+          g.lineTo(175, 100);
+          g.stroke();
+           g.beginPath();
+           g.arc(160,160,50,0,6.28);
+           g.stroke();
+           g.fill();
+       }
+    </script>
+  </head>
+  <body onload="start()">
+     <canvas id="c1" width="400" height="300"></canvas>
+  </body>
+</html>
